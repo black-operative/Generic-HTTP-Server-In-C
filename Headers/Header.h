@@ -2,19 +2,12 @@
 #define HEADER
 
 #include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string.h>
-
-enum req_name {
-    GET,
-    POST
-};
-
-typedef struct {
-    enum req_name req_name;
-    int req_name_len;
-} get_req; 
+#include <fcntl.h>
+#include <sys/sendfile.h>
+#include <unistd.h>
 
 #endif
