@@ -1,4 +1,4 @@
-#include "./Header.h"
+#include "../Headers/Header.h"
 
 int main(int argc, char const *argv[]) {
     /*
@@ -6,6 +6,8 @@ int main(int argc, char const *argv[]) {
         - Domain   : Communication domain type eg : AF_INET : IPV4 type Domain to use
         - Type     : Socket type to use        eg : TCP / UDP / RAW etc
         - Protocol : Protocol for socket ops   eg : 0 for default TCP/IP
+
+        - Returns fle descriptor for new socket created
     */
     
     int skt = socket(AF_INET, SOCK_STREAM, 0);
@@ -13,7 +15,7 @@ int main(int argc, char const *argv[]) {
     // Define PORT number to bind socket to 
     int PORT = 8000;
 
-    // Define buffer to recieve data from client
+    // Define buffer to receive data from client
     char buffer[256] = {0};
 
     /*
@@ -24,20 +26,22 @@ int main(int argc, char const *argv[]) {
         }
 
         - sin_family : Communications domain type eg : AF_INET : IPV4 type Domain to use
-        - sin_port   : Port number in Network byte order (BIG  ENDIAN i.e. First number stored first. Need to convert this to LITTLE ENDIAN i.e. Last number sotred first, for CPU Execution)
+        // - sin_port   : Port number in Network byte order (BIG  ENDIAN i.e. First number stored first. Need to convert this to LITTLE ENDIAN i.e. Last number stored first, for CPU Execution)
         - sin_addr   : IP Address for socket, changes depending on connection type (WiFi / Ethernet), ---STRUCT DATATYPE--- 0.0.0.0 == INADDR_ANY 
     */
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    struct sockaddr_in addr = {
+        AF_INET,
+        // htons(PORT),
+        0x401f,
+        0
+    };
 
     //htons() (host to network) is a function used to perform big to little endian conversions depending on CPU for sin_port 
 
     /*
         bind(int socket, const struct sockaddr *address, socklen_t address_len)
         - socket      : Socket file descriptor value
-        - *address    : Address of sockaddr struct type to interpret domain, protocl and address types (GPIO considerate measure)
+        - *address    : Address of sockaddr struct type to interpret domain, protocol and address types (GPIO considerate measure)
         - address_len : Length of address struct before hand
     */
 
@@ -56,6 +60,8 @@ int main(int argc, char const *argv[]) {
         - socket      : Socket file descriptor value
         - address     : Address of sockaddr struct type from client with limited access
         - address_len : Length of address struct passed before hand
+
+        - Returns file descriptor for accepted socket
     */
 
     int client = accept(skt, 0, 0);
@@ -66,29 +72,51 @@ int main(int argc, char const *argv[]) {
         - buffer     : Buffer to hold data sent from client
         - buffer_len : Length of buffer passed before hand
         - flags      : Used for recv operation mode and error handling
+
+        - Returns total bytes received from connection
     */
     
-    int bytes_received_count = recv(client, buffer, 256, 0);
+    recv(client, buffer, 256, 0);
 
-    if (bytes_received_count > 0) { buffer[bytes_received_count] = '\0'; }
+    //GET /file.html
 
-    //0 /file.html
+    int start = 5;
 
-    enum req_name client_req_type = (int)buffer[0];
-    char file_name[256] = {0}; 
+    char* file_name = buffer + start; 
     
-    if (client_req_type == 0) {
-        int start = 3;
-        int len = bytes_received_count - start;
+    *(strchr(file_name, ' ')) = 0; 
 
-        if (len > 0) {
-            strncpy(file_name, buffer + start, len);
-            file_name[len] = '\0';
-        }
+    /*
+        open(const char *file, int flag)
+        - file : File path to be opened
+        - flag : Access mode to use for file (Read Only, Write Only, .. etc)
 
-        
+        - Returns file descriptor / index for target file in process's table of open files 
+    */
 
-    }
+    int open_file = open(file_name, O_RDONLY);
+
+    /*
+        sendfile(int target_file_descriptor, int source_file_descriptor, off_t *_Nullable offset, size_t count)
+        - target_file_descriptor : Target / Destination File descriptor index (Client socket)
+        - source_file_descriptor : Source File descriptor index (Open File)
+        - offset                 : Position from start to send bytes from source_file_descriptor
+        - count                  : Number of byte to send to target_file_descriptor / Client
+
+        - Returns number of bytes sent to targe_file_descriptor / Client 
+    */
+
+    sendfile(client, open_file, 0, 256);
+    
+    /*
+        close(int file_descriptor)
+        - file_descriptor : Target / Process to close
+
+        - Returns status (0 for successful, -1 for failure)
+    */
+    close(open_file);
+    close(client);
+    close(skt);
 
     return 0;
 }
