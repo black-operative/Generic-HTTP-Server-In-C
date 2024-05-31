@@ -9,5 +9,6 @@
 #include <fcntl.h>
 #include <sys/sendfile.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #endif
