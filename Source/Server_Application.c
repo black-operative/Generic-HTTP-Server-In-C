@@ -1,46 +1,49 @@
 #include "../Headers/Header.h"
+#include "../Headers/Functions.h"
 
 int main(int argc, char const *argv[]) {
-    int skt = socket(AF_INET, SOCK_STREAM, 0);
+    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    // Define buffer to receive data from client
-    char buffer[256] = {0};
+    if (server_socket < 0) {
+        perror("Socket initialization error");
+        exit(EXIT_FAILURE);
+    }
 
-    struct sockaddr_in addr = {
-        AF_INET,
-        0x401f,                     //Port 8000 in hexadecimal backwards for small endian / little endian
-        0   
-    };
-
-    bind(skt, &addr, sizeof(addr));
-
-    printf("Server is now Running at port : %d", 8000);
+    struct sockaddr_in server_address;
     
-    listen(skt, 10);
-
-    int client = accept(skt, 0, 0);
+    server_address.sin_family      = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;                     
+    server_address.sin_port        = htons(PORT);           //Port 8000 in hexadecimal backwards for small endian / little endian
     
-    recv(client, buffer, 256, 0);
+    if (bind(server_socket, &server_address, sizeof(server_address)) < 0) {
+        perror("Server socket binding error");
+        close(server_socket);
+        exit(EXIT_FAILURE);
+    } 
 
-    //GET /file.html
+    if (listen(server_socket, 10) < 0) {
+        perror("Server listen error");
+        close(server_socket);
+        exit(EXIT_FAILURE);
+    }
 
-    int start = 5;
 
-    char* file_name = buffer + start; 
+    printf("Server is now Running at port : %d\n", PORT);
+    printf("Website available at : localhost:%d\n", PORT);
     
-    *(strchr(file_name, ' ')) = 0; 
+    while (TRUE) {
+        int client_socket = accept(server_socket, 0, 0);
 
-   char* final_name = malloc(strlen("../Demo-Files/") + strlen(file_name) + 1);
-   strcpy(final_name, "../Demo-Files/");
-   strcat(final_name, file_name);
+        if (client_socket < 0) {
+            perror("Client Accept error");
+            continue;
+        }
 
-    int open_file = open(final_name, O_RDONLY);
+        handle_client(client_socket);
+        close(client_socket);
+    }
 
-    sendfile(client, open_file, 0, 256);
-    
-    close(open_file);
-    close(client);
-    close(skt);
+    close(server_socket);
 
     return 0;
 }
