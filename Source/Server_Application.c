@@ -2,6 +2,8 @@
 #include "../Headers/Functions.h"
 
 int main(int argc, char const *argv[]) {
+    int PORT = 8080;
+
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (server_socket < 0) {
@@ -13,7 +15,7 @@ int main(int argc, char const *argv[]) {
     
     server_address.sin_family      = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;                     
-    server_address.sin_port        = htons(PORT);           //Port 8000 in hexadecimal backwards for small endian / little endian
+    server_address.sin_port        = htons(PORT);           //Port in hexadecimal. HTONS for small endian / little endian compatibility
     
     if (bind(server_socket, &server_address, sizeof(server_address)) < 0) {
         perror("Server socket binding error");
