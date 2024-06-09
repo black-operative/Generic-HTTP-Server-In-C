@@ -33,16 +33,16 @@ You can use the following methods to clone this repo to your local machine :
 - [**POSIX / UNIX**](https://en.wikipedia.org/wiki/Unix_domain_socket) Socket architecture
 - [**IPV4**](https://en.wikipedia.org/wiki/IPv4) Protocol
 - [**GNU/Linux**](https://en.wikipedia.org/wiki/Linux) Runtime Environment
-- 2 Basic API calls
-    - GET
-    - POST
+- Static Website hosting
 
 ## Code Organization
 
-The Project is divided into 2 Parts :
+The Project is divided into 4 Parts :
 
-- ### Server
-- ### Client
+- ### Header Files
+- ### Source Files
+- ### Build Files
+- ### Static Website Files
 
 ## Functions / System Calls / Data Structures used
 
@@ -70,7 +70,7 @@ struct sockaddr_in {
 Contains information about protocol types, address usage and requested subnet : 
 - **sin_family :** Communications domain type eg : AF_INET : IPV4 type Domain to use
 - **sin_port   :** Port number in Network byte order (BIG  ENDIAN i.e. First number stored first. Need to convert this to LITTLE ENDIAN i.e. Last number stored first, for CPU Execution)
-- **sin_addr   :** IP Address for socket, changes depending on connection type (WiFi / Ethernet), ---STRUCT DATATYPE--- 0.0.0.0 == INADDR_ANY 
+- **sin_addr   :** IP Address for socket, changes depending on connection type (WiFi / Ethernet) 
 
 ### 3. bind()
 
@@ -82,6 +82,8 @@ Allots network port to a socket for communication :
 - **address**   : Address of sockaddr struct type to interpret domain, protocol and address types (GPIO considerate measure)
 - **address_len** : Length of address struct before hand
 
+- Returns status (0 for successful, -1 for failure)
+
 ### 4. listen()
 
 ```c
@@ -91,6 +93,8 @@ Opens socket at network port alloted to certain number of connections
 
 - **socket  :** Socket file descriptor value
 - **backlog :** Max number of connections the socket can accept
+
+- Returns status (0 for successful, -1 for failure)
 
 ### 5. accept()
 Allows connection from client to socket listening at alloted network port :
@@ -103,19 +107,7 @@ accept(int socket, struct sockaddr *_Nullable restrict address, socklen *_Nullab
 
 - Returns file descriptor for accepted socket
 
-### 6. recv()
-Reads data sent from client over web using http protocol :
-```c
-recv(int socket, void buffer[len], size_t buffer_len, int flags) 
-```
-- **socket     :** Socket file descriptor value
-- **buffer     :** Buffer to hold data sent from client
-- **buffer_len :** Length of buffer passed before hand
-- **flags      :** Used for recv operation mode and error handling
-
-- Returns total bytes received from connection
-
-### 7. open()
+### 6. open()
 Opens files / directories which are required and are preset on the system : 
 ```c
 open(const char *file, int flag)
@@ -125,19 +117,40 @@ open(const char *file, int flag)
 
 - Returns file descriptor / index for target file in process's table of open files 
 
-### 8. sendfile()
-Used to send files from source directory / process to destination directory / process :
+### 7. read()
+Reads data sent from client over web using http protocol :
 ```c
-sendfile(int target_file_descriptor, int source_file_descriptor, off_t *_Nullable offset, size_t count)
+read(int socket, void buffer[buffer_len], size_t buffer_len) 
 ```
-- **target_file_descriptor :** Target / Destination File descriptor index (Client socket)
-- **source_file_descriptor :** Source File descriptor index (Open File)
-- **offset                 :** Position from start to send bytes from source_file_descriptor
-- **count                  :** Number of byte to send to target_file_descriptor / Client
+- **socket     :** Socket file descriptor value
+- **buffer     :** Buffer to hold data sent from client
+- **buffer_len :** Length of buffer passed before hand
 
-- Returns number of bytes sent to targe_file_descriptor / Client 
+- Returns total bytes received from connection
 
-### 9. close()
+### 8. write()
+Writes data to target file descriptor / buffer : 
+```c
+write(int socket, void buffer[buffer_len], size_t buffer_len)
+```
+- **socket     :** Socket file descriptor value
+- **buffer     :** Buffer to hold data which is to be written to client
+- **buffer_len :** Length of buffer passed before hand
+
+- Returns number of bytes return to target file descriptor 
+
+### 9. sscanf()
+Parses and scans formatted input according to desired format : 
+```c
+sscanf(const char *target, const char *restrictor_format, char *destination1, char *destination2, char *destination3, ......)
+```
+- **target :** Buffer to scan
+- **restrictor_format :** Required format to scan and match required segments
+- **destination1, destination2, destination3, ..... :** Series of buffers, where the results must be stored
+
+- Returns number of items successfully matched from **buffer** and stored in **destination buffers**
+
+### 10. close()
 Closes any required and open process / file / directory :
 ```c
 close(int file_descriptor)
