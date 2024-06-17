@@ -67,10 +67,16 @@ void send_file_res(int client_socket, const char *path) {
     char *file_content = malloc(file_state.st_size);                            // Read file contents into a buffer
     read(file, file_content, file_state.st_size);
 
+    const char *content_type = "text/html";
+    const char *file_extension = strrchr(path, '.');
+
+    if (strcmp(file_extension, ".css") == 0) { content_type = "text/css"; }
+    if (strcmp(file_extension, ".js")  == 0) { content_type = "text/javascript"; }
+
     send_response(                                                              // Send file content to client socket
         client_socket, 
         STATUS_OK, 
-        "text/html", 
+        content_type, 
         file_content, 
         file_state.st_size
     );
