@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]) {
     
     server_address.sin_family      = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;                     
-    server_address.sin_port        = htons(PORT1);           //Port in hexadecimal. HTONS for small endian / little endian compatibility
+    server_address.sin_port        = htons(PORT1);               //Port in hexadecimal. HTONS for small endian / little endian compatibility
     
     if (bind(server_socket, &server_address, sizeof(server_address)) < 0) {
         perror("Server socket binding error, trying another address");
@@ -61,3 +61,4 @@ int main(int argc, char const *argv[]) {
 
     return 0;
 }
+
