@@ -13,7 +13,7 @@
 #include <sys/sendfile.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 4096
 
 #define TRUE 1
 #define FALSE 0
