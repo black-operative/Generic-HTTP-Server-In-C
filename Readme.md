@@ -1,6 +1,6 @@
-# Minimalist HTTP Web server in C
+# Generic HTTP Web server in C
 
-This a small and simple project that aims to create a working minimalist HTTP server, using the C programming language. 
+This a small and simple project that aims to create a working minimalist and a Generic HTTP server using the C programming language.
 
 ## Installation
 
