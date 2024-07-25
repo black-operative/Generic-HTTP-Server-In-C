@@ -1,17 +1,32 @@
 #include "../Headers/Header.h"
 #include "../Headers/Functions.h"
 
-void handle_client(int client_socket) {
-    char buffer[BUFFER_SIZE] = {0};                                             // Define buffer to receive data from client
+/**
+* @brief Handles client connections and processes HTTP requests.
+*
+* This function reads data from the client socket, extracts the HTTP method, file required and HTTP version, 
+* and then processes the request accordingly. If the method is not GET, it sends a 404 NOT FOUND response. 
+* Otherwise, it sends the requested file to the client.
+*
+* @param client_socket Socket descriptor of the client to handle.
+*
+* @return void
+*/
 
-    int byte_count = read(client_socket, buffer, sizeof(buffer) - 1);           // How many bytes were sent from client
+void handle_client(int client_socket) {
+    // Define buffer to receive data from client
+    char buffer[BUFFER_SIZE] = {0};                                             
+
+    // How many bytes were sent from client
+    int byte_count = read(client_socket, buffer, sizeof(buffer) - 1);   
 
     if (byte_count < 0) {                                       
         perror("Client message read error");
         return;
     }
 
-    buffer[byte_count] = '\0';                                                  // Terminate buffer
+    // Terminate buffer
+    buffer[byte_count] = '\0';                                                          
 
     // Extract important details for client handling and response
     char method[5];
@@ -20,7 +35,8 @@ void handle_client(int client_socket) {
 
     sscanf(buffer, "%s %s %s", method, file, version);
 
-    if (strcmp(method, "GET") != 0) {                                           // Check if http request is of GET type, if not reject
+    // Check if http request is of GET type, if not reject
+    if (strcmp(method, "GET") != 0) {                                           
         not_found_res(client_socket);
         return;
     }
@@ -33,26 +49,69 @@ void handle_client(int client_socket) {
     send_file_res(client_socket, full_path);
 }
 
-void send_response(int client_socket, const char *header, const char *content_type, const char *body, int body_length) {
-    char response_buffer[BUFFER_SIZE] = {0};                                    // Define buffer to store response back to client              
+/**
+* @brief Sends an HTTP response to the client.
+*
+* This function constructs and sends an HTTP response to the client. 
+* The response includes a header, content type, and body. 
+* The header, content type and body are provided as parameters to the function.
+*
+* @param client_socket  Socket descriptor of the client to send the response to.
+* @param header         The HTTP header for the response.
+* @param content_type   The content type of the response body.
+* @param body           The response body.
+* @param body_length    The length of the response body.
+*
+* @return int
+* @retval -1           If there was an error sending the response to the client.
+* @retval 0            If the response was successfully sent to the client.
+*/
+
+int send_response(int client_socket, const char *header, const char *content_type, const char *body, int body_length) {
+    // Define buffer to store response back to client              
+    char response_buffer[BUFFER_SIZE] = {0};                                   
     
-    snprintf(                                                                   // Metadata for response buffer
+    // Metadata for response buffer
+    snprintf(                                                                            
         response_buffer, 
         sizeof(response_buffer), 
-        "%sContent-Type: %s\r\nContent=Length: %z\r\n\r\n", 
+        "%sContent-Type: %s\r\nContent=Length: %d\r\n\r\n", 
         header, content_type, body_length
     );
 
-    write(client_socket, response_buffer, strlen(response_buffer));             // Writing data to client 
-    write(client_socket, body, body_length);
+    // Writing data to client 
+    int byte_count_1 = write(client_socket, response_buffer, strlen(response_buffer));         
+    int byte_count_2 = write(client_socket, body, body_length);
+
+    if (byte_count_1 < 0 || byte_count_2 < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
-void send_file_res(int client_socket, const char *path) {
-    int file = open(path, O_RDONLY);                                            // Open file in read only mode
+/**
+* @brief Sends a file as an HTTP response to the client.
+*
+* This function opens the specified file, reads its contents, and sends an HTTP response to the client.
+* The function determines the content type based on the file extension and sends the file content along 
+* with the appropriate HTTP headers. If the file cannot be opened or read, it sends a 404 NOT FOUND response.
+*
+* @param client_socket  Socket descriptor of the client to send the response to.
+* @param path           The path to the file to be sent.
+*
+* @return               int
+* @retval -1            If an error occurred while sending the response or opening/reading the file.
+* @retval 0             If the file was successfully sent as HTTP response
+*/
+
+int send_file_res(int client_socket, const char *path) {
+    // Open file in read only mode
+    int file = open(path, O_RDONLY);                                         
 
     if (file < 0) {
         not_found_res(client_socket);
-        return;
+        return -1;
     }
     
     // File state structure to store metadata
@@ -61,10 +120,10 @@ void send_file_res(int client_socket, const char *path) {
     if (fstat(file, &file_state) < 0) {
         close(file);
         not_found_res(client_socket);
-        return;
+        return -1;
     }
 
-    char *file_content = malloc(file_state.st_size);                            // Read file contents into a buffer
+    char *file_content = malloc(file_state.st_size);                                // Read file contents into a buffer
     read(file, file_content, file_state.st_size);
 
     const char *content_type = "text/html";
@@ -73,7 +132,7 @@ void send_file_res(int client_socket, const char *path) {
     if (strcmp(file_extension, ".css") == 0) { content_type = "text/css"; }
     if (strcmp(file_extension, ".js")  == 0) { content_type = "text/javascript"; }
 
-    send_response(                                                              // Send file content to client socket
+    int status_code = send_response(                                                                       // Send file content to client socket
         client_socket, 
         STATUS_OK, 
         content_type, 
@@ -81,17 +140,44 @@ void send_file_res(int client_socket, const char *path) {
         file_state.st_size
     );
 
+    if (status_code < 0) {
+        perror("Response sending error");
+        return -1;
+    }
+
     close(file);
     free(file_content);
+
+    return 0;
 }
 
-void not_found_res(int client_socket) {
+/**
+* @brief Sends a 404 NOT FOUND HTTP response to the client.
+*
+* This function constructs and sends a 404 NOT FOUND HTTP response to the client
+*
+* @param client_socket Socket descriptor of the client to send the response to.
+*
+* @return int
+* @retval -1           If there was an error sending the response to the client.
+* @retval 0            If the response was successfully sent to the client.
+*/
+
+int not_found_res(int client_socket) {
     const char *body = "<!DOCTYPE html><html lang=\"en\"><head></head><body><h1>404 NOT FOUND</h1></body></html>";
-    send_response(
+    
+    int status_code = send_response(
         client_socket,
         STATUS_ERR,
         "text/html",
         body,
         strlen(body)
     );
+
+    if (status_code < 0) {
+        perror("Response sending error");
+        return -1;
+    }
+
+    return 0;
 }
