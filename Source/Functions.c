@@ -1,5 +1,4 @@
 #include "../Headers/Header.h"
-#include <sys/socket.h>
 #include "../Headers/Functions.h"
 
 /**
