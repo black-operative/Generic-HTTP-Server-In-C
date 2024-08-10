@@ -1,4 +1,5 @@
 #include "../Headers/Header.h"
+#include <sys/socket.h>
 #include "../Headers/Functions.h"
 
 /**
@@ -18,7 +19,7 @@ void handle_client(int client_socket) {
     char buffer[BUFFER_SIZE] = {0};                                             
 
     // How many bytes were sent from client
-    int byte_count = read(client_socket, buffer, sizeof(buffer) - 1);   
+    int byte_count = recv(client_socket, buffer, sizeof(buffer) - 1, 0);   
 
     if (byte_count < 0) {                                       
         perror("Client message read error");
@@ -124,7 +125,7 @@ int send_file_res(int client_socket, const char *path) {
     }
 
     char *file_content = malloc(file_state.st_size);                                // Read file contents into a buffer
-    read(file, file_content, file_state.st_size);
+    recv(file, file_content, file_state.st_size, 0);
 
     const char *content_type = "text/html";
     const char *file_extension = strrchr(path, '.');
