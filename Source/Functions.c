@@ -17,9 +17,8 @@ void handle_client(int client_socket) {
     // Define buffer to receive data from client
     char buffer[BUFFER_SIZE] = {0};                                             
 
-    // How many bytes were sent from client
+    // How many bytes were sent from client + Error checking
     int byte_count = recv(client_socket, buffer, sizeof(buffer) - 1, 0);   
-
     if (byte_count < 0) {                                       
         perror("Client message read error");
         return;
@@ -37,7 +36,7 @@ void handle_client(int client_socket) {
 
     // Check if http request is of GET type, if not reject
     if (strcmp(method, "GET") != 0) {                                           
-        not_found_res(client_socket);
+        illegal_method_res(client_socket);
         return;
     }
 
@@ -134,7 +133,7 @@ int send_file_res(int client_socket, const char *path) {
 
     int status_code = send_response(                                                                       // Send file content to client socket
         client_socket, 
-        STATUS_OK, 
+        STATUS_200_OK, 
         content_type, 
         file_content, 
         file_state.st_size
@@ -168,7 +167,7 @@ int not_found_res(int client_socket) {
     
     int status_code = send_response(
         client_socket,
-        STATUS_ERR,
+        STATUS_404_ERR,
         "text/html",
         body,
         strlen(body)
@@ -180,4 +179,14 @@ int not_found_res(int client_socket) {
     }
 
     return 0;
+}
+
+int illegal_method_res(int client_socket) {
+    const char *body = "<!DOCTYPE html><html lang=\"en\"><head></head><body><h1>405 Method Not Allowed</h1></body></html>";
+    
+    int status_code = send_response(
+        client_socket,
+        STATUS_405_ERR,
+        "text/html",
+        body,
 }
