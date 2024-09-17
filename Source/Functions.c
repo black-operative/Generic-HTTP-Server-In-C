@@ -189,4 +189,13 @@ int illegal_method_res(int client_socket) {
         STATUS_405_ERR,
         "text/html",
         body,
+        strlen(body)
+    );
+
+    if (status_code < 0) {
+        perror("Response sending error");
+        return -1;
+    }
+
+    return 0;
 }
