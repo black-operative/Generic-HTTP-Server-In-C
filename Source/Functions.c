@@ -181,6 +181,19 @@ int not_found_res(int client_socket) {
     return 0;
 }
 
+
+/**
+* @brief Sends a 405 ILLEGAL METHOD HTTP response to the client.
+*
+* This function constructs and sends a 405 ILLEGAL METHOD HTTP response to the client
+*
+* @param client_socket Socket descriptor of the client to send the response to.
+*
+* @return int
+* @retval -1           If there was an error sending the response to the client.
+* @retval 0            If the response was successfully sent to the client.
+*/
+
 int illegal_method_res(int client_socket) {
     const char *body = "<!DOCTYPE html><html lang=\"en\"><head></head><body><h1>405 Method Not Allowed</h1></body></html>";
     
