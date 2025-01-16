@@ -20,14 +20,14 @@ You can use the following methods to clone this repo to your local machine :
         - `Ctrl + Shift + O`
     - URL Tab
     - Repo URL ***or*** Username + Repo name :  
-        - `https://github.com/rudrakshm64/Generic-HTTP-Server-In-C.git`
-        - `rudrakshm64/Generic-HTTP-Server-In-C`
+        - `https://github.com/black-operative/Generic-HTTP-Server-In-C.git`
+        - `black-operative/Generic-HTTP-Server-In-C`
     - Local Path, pick any location that you want
 
 3. GitHub CLI
 
     ```bash
-    gh repo clone rudrakshm64/Generic-HTTP-Server-In-C
+    gh repo clone black-operative/Generic-HTTP-Server-In-C
     ```
 
 ## Features
