@@ -9,7 +9,7 @@ You can use the following methods to clone this repo to your local machine :
 1. HTTP Clone
 
     ```bash
-    git clone https://github.com/rudrakshm64/Generic-HTTP-Server-In-C.git
+    git clone https://github.com/black-operative/Generic-HTTP-Server-In-C.git
     ```
 
 2. GitHub Desktop
