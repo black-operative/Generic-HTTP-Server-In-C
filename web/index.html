@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <title>Simple Calculator</title>
+        <link href="style.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="calculator">
+            <label for="display"></label><input class="display" disabled id="display" type="text">
+            <div class="buttons">
+                <button class="clear" onclick="clearDisplay()">C</button>
+                <button onclick="deleteLast()">←</button>
+                <button class="operator" onclick="appendValue('/')">/</button>
+                <button class="operator" onclick="appendValue('*')">*</button>
+                <button onclick="appendValue('7')">7</button>
+                <button onclick="appendValue('8')">8</button>
+                <button onclick="appendValue('9')">9</button>
+                <button class="operator" onclick="appendValue('-')">-</button>
+                <button onclick="appendValue('4')">4</button>
+                <button onclick="appendValue('5')">5</button>
+                <button onclick="appendValue('6')">6</button>
+                <button class="operator" onclick="appendValue('+')">+</button>
+                <button onclick="appendValue('1')">1</button>
+                <button onclick="appendValue('2')">2</button>
+                <button onclick="appendValue('3')">3</button>
+                <button class="operator" onclick="calculate()">=</button>
+                <button onclick="appendValue('0')" style="grid-column: span 2;">0</button>
+                <button onclick="appendValue('.')">.</button>
+            </div>
+        </div>
+        <script src="index.js"></script>
+    </body>
+</html>
