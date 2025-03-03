@@ -1,3 +1,5 @@
 *.json
 build.sh
 test.c
+build/
+.cache/
