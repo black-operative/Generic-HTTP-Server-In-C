@@ -43,7 +43,13 @@ void handle_client(int client_socket) {
     send_file_res(client_socket, full_path);
 }
 
-int send_response(int client_socket, const char *header, const char *content_type, const char *body, int body_length) {
+int send_response(
+    int         client_socket, 
+    const char* header, 
+    const char* content_type, 
+    const char* body, 
+    int         body_length
+) {
     // Define buffer to store response back to client              
     char response_buffer[BUFFER_SIZE] = {0};                                   
     
