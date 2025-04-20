@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/socket.h>
 
-#include "Functions.h"
+#include <Functions.h>
 
 void handle_client(int client_socket) {
     // Define buffer to receive data from client
@@ -93,7 +93,8 @@ int send_file_res(int client_socket, const char *path) {
     size_t file_size = ftell(file);
     rewind(file);
 
-    char *file_content = malloc(file_size + 1);                                // Read file contents into a buffer
+    // Read file contents into a buffer
+    char *file_content = malloc(file_size + 1);                                
     if (file_content == NULL) {
         perror("malloc");
         fclose(file);

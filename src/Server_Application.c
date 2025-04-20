@@ -24,8 +24,7 @@ void exit_signal_handle(int signal) {
     }
 }
 
-int main() {
-
+int main(void) {
     signal(SIGINT, exit_signal_handle);
 
     // Define port numbers to use
