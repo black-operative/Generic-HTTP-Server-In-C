@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef FUNCTIONS
-#define FUNCTIONS
-
 #define STATUS_200_OK  "HTTP/1.1 200 OK\r\n"
 #define STATUS_404_ERR "HTTP/1.1 404 NOT FOUND\r\n"
 #define STATUS_405_ERR "HTTP/1.1 405 METHOD NOT ALLOWED\r\n"
@@ -96,5 +93,3 @@ int illegal_method_res(int client_socket);
  * @param client_socket 
  */
 void close_server(int server_socket, int client_socket);
-
-#endif
